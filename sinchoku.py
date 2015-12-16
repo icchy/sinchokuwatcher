@@ -3,19 +3,25 @@
 import tweepy
 import os, sys
 import time, datetime
+import ConfigParser
 
-# Twitter auth
-CONSUMER_KEY = ""
-CONSUMER_SECRET = ""
-ACCESS_TOKEN = ""
-ACCESS_TOKEN_SECRET = ""
+if not os.path.exists('./sinchoku.cfg'):
+    print >> sys.stderr, "config file does not exist."
+    sys.exit(1)
+
+config = ConfigParser.SafeConfigParser()
+config.read('./sinchoku.cfg')
+
+CONSUMER_KEY = config.get("auth", "consumer_key")
+CONSUMER_SECRET = config.get("auth", "consumer_secret")
+ACCESS_TOKEN = config.get("auth", "access_token")
+ACCESS_TOKEN_SECRET = config.get("auth", "access_token_secret")
 
 # watch conf
 INTERVAL = {
-    "write": 5*60, # seconds
-    "sleep": 30*60
+    "write": int(config.get("interval", "write"))*60,
+    "sleep": int(config.get("interval", "sleep"))*60
 }
-
 
 STATE = {
     "stop": 0,
@@ -82,4 +88,5 @@ if __name__ in '__main__':
             time.sleep(1)
 
         except KeyboardInterrupt:
+            tweet("レポートを書くのをやめたゾイ", api, me)
             sys.exit(1)
